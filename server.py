@@ -37,6 +37,19 @@ async def upload_chunk(request):
 
 app.router.add_post('/upload_chunk', upload_chunk)
 
+runner = web.AppRunner(app)
+await runner.setup()
+
+site = web.TCPSite(runner, os.environ.get('LISTEN_HOST', '0.0.0.0'), port= int(os.environ.get('LISTEN_PORT', '3000')))
+await site.start()
+
+names = sorted(str(s.name) for s in runner.sites)
+print(
+    "======== Running on {} ========\n"
+    "(Press CTRL+C to quit)".format(", ".join(names))
+)
+
 if __name__ == '__main__':
     os.mkfifo(ASSEMBLED_PIPE_PATH, 0o777)  # Create the named pipe
-    web.run_app(app)
+    while True:
+        await asyncio.sleep(1)
