@@ -51,9 +51,9 @@ def send_file_in_chunks(pipe_path, server_url, chunk_size=1024):
     return True
 
 # Open the client pipe for writing the file data
-with open(CLIENT_PIPE_PATH, 'wb') as client_pipe:
-    with open('your_file_to_send.txt', 'rb') as file:
-        client_pipe.write(file.read())
+# with open(CLIENT_PIPE_PATH, 'wb') as client_pipe:
+#     with open('your_file_to_send.txt', 'rb') as file:
+#         client_pipe.write(file.read())
 
 # Call send_file_in_chunks to send data from the client pipe to the server
 upload_server = os.environ.get('UPLOAD_SERVER')
