@@ -43,7 +43,7 @@ async def run_app():
     runner = web.AppRunner(app)
     await runner.setup()
 
-    site = web.TCPSite(runner, os.environ.get('LISTEN_HOST', '0.0.0.0'), port= int(os.environ.get('LISTEN_PORT', '3000')))
+    site = web.TCPSite(runner, os.environ.get('LISTEN_HOST', '0.0.0.0'), port=int(os.environ.get('LISTEN_PORT', '3000')))
     await site.start()
 
     names = sorted(str(s.name) for s in runner.sites)
