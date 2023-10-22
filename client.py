@@ -1,4 +1,5 @@
 import hashlib
+import logging
 import os
 import requests
 
@@ -13,15 +14,23 @@ CHUNK_SIZE = int(os.environ.get('CHUNK_SIZE', '10485760'))
 
 os.mkfifo(CLIENT_PIPE_PATH, 0o777)
 
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(message)s',
+                    handlers=[logging.FileHandler("client.log"),
+                              logging.StreamHandler()])
+
+logger = logging.getLogger(__name__)
+
+session = requests.Session()
+retries = Retry(total=10000, backoff_factor=0.1, status_forcelist=[400, 500, 502, 503, 504])
+session.mount('http://', HTTPAdapter(max_retries=retries))
+
 def calculate_chunk_checksum(chunk):
     sha256 = hashlib.sha256()
     sha256.update(chunk)
     return sha256.hexdigest()
 
 def send_chunk(url, data, headers):
-    session = requests.Session()
-    retries = Retry(total=10000, backoff_factor=0.1, status_forcelist=[400, 500, 502, 503, 504])
-    session.mount('http://', HTTPAdapter(max_retries=retries))
 
     try:
         response = session.post(url, data=data, headers=headers)
