@@ -13,6 +13,11 @@ from JSONHTTPErrors import JSONHTTPBadRequest
 ASSEMBLED_PIPE_PATH = os.environ.get(
     'ASSEMBLED_PIPE_PATH', '/tmp/assembled_file.pipe')
 
+CLIENT_MAX_SIZE = 1024**2 * int(os.environ.get('CLIENT_MAX_SIZE', '1024'))
+
+LISTEN_HOST = os.environ.get('LISTEN_HOST', '0.0.0.0')
+LISTEN_PORT = int(os.environ.get('LISTEN_PORT', '3000'))
+
 
 def calculate_chunk_checksum(chunk):
     sha256 = hashlib.sha256()
@@ -44,13 +49,15 @@ async def run_app():
                               logging.StreamHandler()])
 
     logger = logging.getLogger(__name__)
-    app = web.Application()
+
+    app = web.Application(client_max_size=CLIENT_MAX_SIZE)
+
     app.router.add_post('/upload_chunk', upload_chunk)
 
     runner = web.AppRunner(app)
     await runner.setup()
 
-    site = web.TCPSite(runner, os.environ.get('LISTEN_HOST', '0.0.0.0'), port=int(os.environ.get('LISTEN_PORT', '3000')))
+    site = web.TCPSite(runner, LISTEN_HOST, prt=LISTEN_PORT)
     await site.start()
 
     names = sorted(str(s.name) for s in runner.sites)
