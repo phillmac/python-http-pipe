@@ -49,7 +49,10 @@ print(
     "(Press CTRL+C to quit)".format(", ".join(names))
 )
 
-if __name__ == '__main__':
-    os.mkfifo(ASSEMBLED_PIPE_PATH, 0o777)  # Create the named pipe
+async def run_app():
     while True:
         await asyncio.sleep(1)
+
+if __name__ == '__main__':
+    os.mkfifo(ASSEMBLED_PIPE_PATH, 0o777)  # Create the named pipe
+    asyncio.run(run_app())
