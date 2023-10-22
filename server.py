@@ -50,11 +50,11 @@ async def run_app():
                     handlers=[logging.FileHandler("server.log"),
                               logging.StreamHandler()])
 
-    logger = logging.getLogger(__name__)
-
     app = web.Application(client_max_size=CLIENT_MAX_SIZE)
 
     app.router.add_post('/upload_chunk', upload_chunk)
+
+    app['logger'] = logging.getLogger('aiohttp.server')
 
     runner = web.AppRunner(app)
     await runner.setup()
