@@ -8,6 +8,9 @@ from requests.packages.urllib3.util.retry import Retry
 # Create a named pipe for reading the file on the client side
 
 CLIENT_PIPE_PATH = os.environ.get('CLIENT_PIPE_PATH', '/tmp/client_file.pipe')
+UPLOAD_SERVER = os.environ.get('UPLOAD_SERVER')
+CHUNK_SIZE = int(os.environ.get('CHUNK_SIZE', '10485760'))
+
 os.mkfifo(CLIENT_PIPE_PATH, 0o777)
 
 def calculate_chunk_checksum(chunk):
@@ -29,7 +32,7 @@ def send_chunk(url, data, headers):
 
     return True
 
-def send_file_in_chunks(pipe_path, server_url, chunk_size=1024):
+def send_file_in_chunks(pipe_path, server_url, chunk_size=CHUNK_SIZE):
     chunk_number = 0
 
     with open(pipe_path, 'rb') as pipe_file:
@@ -56,9 +59,8 @@ def send_file_in_chunks(pipe_path, server_url, chunk_size=1024):
 #         client_pipe.write(file.read())
 
 # Call send_file_in_chunks to send data from the client pipe to the server
-upload_server = os.environ.get('UPLOAD_SERVER')
 
-if send_file_in_chunks(CLIENT_PIPE_PATH, upload_server):
+if send_file_in_chunks(CLIENT_PIPE_PATH, UPLOAD_SERVER):
     print("File sent successfully")
 else:
     print("File transfer failed")
