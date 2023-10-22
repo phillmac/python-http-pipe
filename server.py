@@ -36,9 +36,7 @@ async def upload_chunk(request):
     if calculated_checksum != checksum:
         raise JSONHTTPBadRequest(reason='not ok: integrity mismatch')
 
-    assembled_pipe = open(ASSEMBLED_PIPE_PATH, 'ab')
-    assembled_pipe.write(chunk_data)
-    assembled_pipe.close()
+    request.app['pipe'].write(chunk_data)
 
     return web.json_response('ok')
 
@@ -55,6 +53,7 @@ async def run_app():
     app.router.add_post('/upload_chunk', upload_chunk)
 
     app['logger'] = logging.getLogger('aiohttp.server')
+    app['pipe'] = open(ASSEMBLED_PIPE_PATH, 'ab')
 
     runner = web.AppRunner(app)
     await runner.setup()
@@ -71,6 +70,15 @@ async def run_app():
     while True:
         await asyncio.sleep(1)
 
+
+
 if __name__ == '__main__':
     os.mkfifo(ASSEMBLED_PIPE_PATH, 0o777)  # Create the named pipe
-    asyncio.run(run_app())
+    try:
+        asyncio.run(run_app())
+    except KeyboardInterrupt:
+        print('KeyboardInterrupt')
+
+    # assembled_pipe.close()
+
+    logging.shutdown()
