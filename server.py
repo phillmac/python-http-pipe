@@ -1,5 +1,6 @@
 import asyncio
 import hashlib
+import logging
 import os
 
 import aiohttp
@@ -8,7 +9,6 @@ from aiohttp import web
 from JSONHTTPErrors import JSONHTTPBadRequest
 
 
-app = web.Application()
 
 ASSEMBLED_PIPE_PATH = os.environ.get(
     'ASSEMBLED_PIPE_PATH', '/tmp/assembled_file.pipe')
@@ -38,6 +38,13 @@ async def upload_chunk(request):
 
 
 async def run_app():
+    logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(message)s',
+                    handlers=[logging.FileHandler("server.log"),
+                              logging.StreamHandler()])
+
+    logger = logging.getLogger(__name__)
+    app = web.Application()
     app.router.add_post('/upload_chunk', upload_chunk)
 
     runner = web.AppRunner(app)
