@@ -29,6 +29,8 @@ async def upload_chunk(request):
     chunk_number = int(request.headers.get('Chunk-Number'))
     checksum = request.headers.get('Checksum')
     chunk_data = await request.read()
+    chunck_len = len(chunk_data)
+    request.app['logger'].info(f'Got chuck data {chunck_len} bytes')
 
     calculated_checksum = calculate_chunk_checksum(chunk_data)
     if calculated_checksum != checksum:
