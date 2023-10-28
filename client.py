@@ -22,7 +22,7 @@ logging.basicConfig(level=logging.DEBUG,
 logger = logging.getLogger(__name__)
 
 session = requests.Session()
-retries = Retry(total=10000, backoff_factor=0.1, status_forcelist=[400, 500, 502, 503, 504])
+retries = Retry(total=10, backoff_factor=0.1, status_forcelist=[400, 500, 502, 503, 504])
 session.mount('http://', HTTPAdapter(max_retries=retries))
 
 def calculate_chunk_checksum(chunk):
@@ -35,11 +35,11 @@ def send_chunk(url, data, headers):
     try:
         response = session.post(url, data=data, headers=headers)
         response.raise_for_status()
+        return response.json() === 'ok'
     except requests.exceptions.RequestException as e:
         print(f"Error sending chunk: {e}")
         return False
 
-    return True
 
 def send_file_in_chunks(pipe_path, server_url, chunk_size=CHUNK_SIZE):
     chunk_number = 0
