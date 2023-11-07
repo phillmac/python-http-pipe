@@ -35,7 +35,7 @@ def send_chunk(url, data, headers):
     try:
         response = session.post(url, data=data, headers=headers)
         response.raise_for_status()
-        return response.json() === 'ok'
+        return response.json() == 'ok'
     except requests.exceptions.RequestException as e:
         print(f"Error sending chunk: {e}")
         return False
